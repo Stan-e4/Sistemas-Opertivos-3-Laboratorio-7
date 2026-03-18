@@ -1,0 +1,53 @@
+Pracitca 3 Creacion de controlador de Dominio con cliente Windows
+sudo apt update
+sudo apt install -y samba samba-dsdb-modules samba-vfs-modules krb5-user krb5-config krb5-kdc krb5-admin-server dnsutils  # OK y OK
+sudo nano /etc/hosts
+     172.20.0.5 dc.os3.inet #(la IP de tu Linux)
+
+
+sudo hostnamectl set-hostname dc.os3.inet
+sudo hostnamectl
+
+sudo nano /etc/krb5.conf  #borra todo y agregar lo que esta mas abajo
+[libdefaults]
+    default_realm = OS3.INET
+    dns_lookup_realm = false
+    dns_lookup_kdc = true
+ 
+[realms]
+    OS3.INET = {
+        kdc = dc.os3.inet
+        admin_server = dc.os3.inet
+    }
+ 
+[domain_realm]
+    .os3.inet = OS3.INET
+    os3.inet = OS3.INET
+
+sudo mv /etc/samba/smb.conf /etc/samba/smb.conf.bak
+
+sudo samba-tool domain provision --use-rfc2307 --interactive
+Realm: OS3.INET
+Domain: OS3
+Server Role: dc
+DNS backend: SAMBA_INTERNAL
+DNS forwarder IP address: 8.8.8.8 
+Administrator password: Teletubies123
+sudo samba-tool user create lanegracubana TU_MATRICULA
+
+systemctl restart samba ad-dc
+systemctl start smbd
+systemctl start nmbd
+
+#### en la VM de windows###:
+
+## cambiar el DNS de la maquina a que apunte al servidor de linux
+
+Presiona Win + R, escribe sysdm.cpl y presiona Enter.
+Ir a "Nombre del equipo" > "Cambiar":
+
+Selecciona Miembro de un dominio e ingresa: os3.inet
+
+Usuario: Administrator
+Contraseña: Teletubies123
+
