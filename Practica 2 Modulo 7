@@ -1,0 +1,62 @@
+Práctica 2: Servidor de archivos SAMBA (Linux a Windows)
+EL SERVIDOR
+sudo apt update
+sudo apt install samba -y
+sudo mkdir -p /srv/samba/compartido
+sudo touch /srv/samba/compartido/adrian{1..100}.txt
+# Crear el grupo
+sudo groupadd smbgroup
+
+# Crear el usuario (sin acceso a la terminal de Linux, solo para archivos)
+sudo useradd -M -s /sbin/nologin -g smbgroup cliente_win
+
+# Asignarle una contraseña de Samba (Pon una fácil, como "1234", te la pedirá dos veces)
+sudo smbpasswd -a cliente_win
+
+# Darle la propiedad de la carpeta a ese usuario y grupo
+sudo chown -R cliente_win:smbgroup /srv/samba/compartido
+
+# Dar permisos completos de lectura, escritura y ejecución al propietario y al grupo
+sudo chmod -R 770 /srv/samba/compartido
+Configurar qué se va a compartir
+sudo nano /etc/samba/smb.conf
+[Carpeta_OS3]
+path = /srv/samba/compartido
+valid users = @smbgroup
+read only = no
+browsable = yes
+sudo systemctl restart smbd nmbd
+hostname -I
+EL CLIENTE (Tu MiniOS10 Windows)
+1. Mapear el disco de red:
+
+Abre el Explorador de Archivos (Win + E).
+
+En la barra lateral izquierda, haz clic derecho sobre "Este equipo" (This PC) y selecciona "Conectar a unidad de red..." (Map network drive).
+
+Elige una letra de unidad (por ejemplo, Z:).
+
+En "Carpeta", escribe la ruta hacia tu servidor usando la IP que anotaste. Tiene que ser con barras invertidas:
+\\IP_DEL_SERVIDOR\Carpeta_OS3 (Ejemplo: \\192.168.100.33\Carpeta_OS3).
+
+Marca la casilla que dice "Conectar con credenciales diferentes".
+
+Haz clic en Finalizar.
+Autenticarse:
+Te pedirá un usuario y contraseña.
+
+Usuario: cliente_win
+
+Contraseña: la que creaste en el paso 4 (ej. 1234).
+
+3. Modificar el archivo (Tu primera captura de esta práctica):
+
+Una vez que entre, verás tu "Disco Z:" con los 100 archivos adentro. (Toma captura aquí demostrando que el disco está mapeado).
+
+Busca el archivo adrian99.txt y ábrelo.
+
+Escribe la frase: el zumzum de la carabela
+
+Guarda el archivo (Ctrl+G) y ciérralo.
+MÁQUINA 1: EL SERVIDOR
+cat /srv/samba/compartido/adrian99.txt
