@@ -1,0 +1,27 @@
+Practica 1: compartir archivos entre linux utilizando NFS
+Instalar el servicio NFS:
+sudo apt update
+sudo apt install nfs-kernel-server -y
+sudo mkdir /OS3
+sudo touch /OS3/Adrian{1..100}.txt
+sudo chown -R nobody:nogroup /OS3
+sudo chmod -R 777 /OS3
+sudo nano /etc/exports
+/OS3 *(rw,sync,no_subtree_check)
+sudo systemctl restart nfs-kernel-server
+hostname -I
+cliente:
+Paso 2: Preparar el Cliente
+sudo apt update
+sudo apt install nfs-common -y
+sudo mkdir -p /mnt/compartido_os3
+sudo nano /etc/fstab
+IP_DEL_SERVIDOR:/OS3    /mnt/compartido_os3    nfs    defaults    0    0
+control o control x
+sudo mount -a
+server
+ls /mnt/compartido_os3
+cliente
+
+sudo reboot
+ls /mnt/compartido_os3
